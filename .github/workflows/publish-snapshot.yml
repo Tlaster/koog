@@ -1,0 +1,105 @@
+name: Publish Snapshot
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_version:
+        description: "Base version. Gradle appends -SNAPSHOT automatically."
+        required: true
+        default: "1.2.0"
+      group_id:
+        description: "Maven groupId for the forked snapshot artifacts."
+        required: true
+        default: "moe.tlaster"
+      repository_url:
+        description: "Central Portal snapshot repository URL."
+        required: true
+        default: "https://central.sonatype.com/repository/maven-snapshots/"
+
+concurrency:
+  group: publish-snapshot-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  JAVA_VERSION: 21
+  JAVA_DISTRIBUTION: "corretto"
+  JAVA_OPTS: "-Xms8g -Xmx8g -Dfile.encoding=UTF-8 -Djava.awt.headless=true -Dkotlin.daemon.jvm.options=-Xmx6g"
+
+jobs:
+  publish:
+    name: Publish ${{ inputs.group_id }}:${{ inputs.base_version }}-SNAPSHOT
+    runs-on: macos-latest
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    env:
+      ORG_GRADLE_PROJECT_group: ${{ inputs.group_id }}
+      ORG_GRADLE_PROJECT_version: ${{ inputs.base_version }}
+      ORG_GRADLE_PROJECT_ossrhUsername: ${{ secrets.OSSRH_USERNAME }}
+      ORG_GRADLE_PROJECT_ossrhPassword: ${{ secrets.OSSRH_PASSWORD }}
+      SNAPSHOT_REPOSITORY_URL: ${{ inputs.repository_url }}
+      SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+      SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+
+    steps:
+      - name: Configure Git
+        run: git config --global core.autocrlf input
+
+      - uses: actions/checkout@v6
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v5
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-read-only: false
+
+      - name: Validate snapshot inputs
+        env:
+          BASE_VERSION: ${{ inputs.base_version }}
+          GROUP_ID: ${{ inputs.group_id }}
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$GROUP_ID" != "moe.tlaster" ]]; then
+            echo "This workflow is intended to publish snapshots under groupId moe.tlaster." >&2
+            exit 1
+          fi
+
+          if [[ "$BASE_VERSION" == *-SNAPSHOT ]]; then
+            echo "base_version must not include -SNAPSHOT because the Gradle build appends it." >&2
+            exit 1
+          fi
+
+          for name in OSSRH_USERNAME OSSRH_PASSWORD SIGNING_KEY SIGNING_PASSWORD; do
+            if [[ -z "${!name}" ]]; then
+              echo "Missing GitHub secret: $name" >&2
+              exit 1
+            fi
+          done
+
+          echo "Publishing $GROUP_ID:$BASE_VERSION-SNAPSHOT to $SNAPSHOT_REPOSITORY_URL"
+
+      - name: Publish snapshots
+        run: |
+          ./gradlew \
+            --init-script .github/gradle/publish-snapshot.init.gradle.kts \
+            publishAllSnapshotsToCentralPortal \
+            --no-daemon \
+            --stacktrace
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: publish-snapshot-reports
+          path: |
+            **/build/reports/
