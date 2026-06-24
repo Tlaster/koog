@@ -164,8 +164,8 @@ kotlin {
             }
         }
 
-        // Source set holding dependencies that are valid on every target except wasmJs.
-        // 'jvmCommonMain', 'jsMain', and 'appleMain' pick these up.
+        // Source set holding dependencies that are valid on every target except wasmJs and macosArm64.
+        // 'jvmCommonMain', 'jsMain', and 'iosMain' pick these up.
         // 'wasmJsMain' keeps its existing parent (nonJvmCommonMain, commonMain) and never sees them.
         val nonWasmJsMain by creating {
             dependsOn(commonMain.get())
@@ -187,10 +187,13 @@ kotlin {
         }
 
         appleMain {
-            dependsOn(nonWasmJsMain)
             dependencies {
                 api(libs.ktor.client.darwin)
             }
+        }
+
+        iosMain {
+            dependsOn(nonWasmJsMain)
         }
 
         jsMain {
