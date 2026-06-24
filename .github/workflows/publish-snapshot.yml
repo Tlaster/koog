@@ -28,7 +28,7 @@ env:
 jobs:
   publish:
     name: Publish ${{ inputs.group_id }}:${{ inputs.base_version }}-SNAPSHOT
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: read
     env:
