@@ -29,7 +29,6 @@ jobs:
   publish:
     name: Publish ${{ inputs.group_id }}:${{ inputs.base_version }}-SNAPSHOT
     runs-on: macos-latest
-    timeout-minutes: 120
     permissions:
       contents: read
     env:
