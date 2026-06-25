@@ -150,7 +150,7 @@ android {
     // into the published AAR's merged manifest and forces every consumer to override it.
     // It also breaks transitive deps that require a higher minSdk (e.g. LiteRT requires 24+).
     defaultConfig {
-        minSdk = 35
+        minSdk = 23
     }
 
     compileOptions {
