@@ -61,6 +61,12 @@ kotlin {
                 implementation(libs.ktor.client.darwin)
             }
         }
+
+        mingwX64Test {
+            dependencies {
+                implementation(libs.ktor.client.winhttp)
+            }
+        }
     }
 
     explicitApi()

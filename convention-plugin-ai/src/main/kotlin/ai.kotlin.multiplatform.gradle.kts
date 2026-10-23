@@ -25,6 +25,9 @@ val isWasmJsIncluded = (findProperty("koog.target.wasmJs") as? String)?.toBoolea
 // have no macosArm64 publication (e.g. OTel Kotlin SDK 0.3.0) set `koog.target.macos=false`.
 val isMacosIncluded = (findProperty("koog.target.macos") as? String)?.toBoolean() ?: true
 
+// OTel Kotlin SDK 0.3.0 has no mingwX64 publication.
+val isMingwX64Included = (findProperty("koog.target.mingwX64") as? String)?.toBoolean() ?: true
+
 kotlin {
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
@@ -53,6 +56,7 @@ kotlin {
 
     // Tier 3
     iosX64()
+    if (isMingwX64Included) mingwX64()
 
     // Configure XCFramework for iOS targets (opt-in via -Pkoog.build.xcframework=true)
     configureXCFrameworkIfRequested(project)
@@ -111,11 +115,11 @@ kotlin {
             dependsOn(commonTest.get())
         }
 
-        appleMain {
+        nativeMain {
             dependsOn(nonJvmCommonMain)
         }
 
-        appleTest {
+        nativeTest {
             dependsOn(nonJvmCommonTest)
         }
 

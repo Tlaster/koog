@@ -82,6 +82,12 @@ fun main() = runBlocking {
 
 Currently, the framework supports the JVM, JS, WasmJS and iOS targets.
 
+This fork also supports macOS ARM64 and Windows x64 (`mingwX64`). The Windows
+`koog-agents` and `koog-agents-additions` artifacts include the Ktor WinHTTP engine.
+OpenTelemetry is excluded from macOS, Windows, and WasmJS because the current
+OpenTelemetry Kotlin SDK does not publish artifacts for those targets.
+Run `./gradlew mingwX64Test` on Windows to execute the native tests.
+
 ### Requirements
 
 - JDK 17 or higher is required to use the framework on JVM.

@@ -175,7 +175,7 @@ kotlin {
             }
         }
 
-        // Source set holding dependencies that are valid on every target except wasmJs and macosArm64.
+        // OTel is available on JVM, Android, JS, and iOS only.
         // 'jvmCommonMain', 'jsMain', and 'iosMain' pick these up.
         // 'wasmJsMain' keeps its existing parent (nonJvmCommonMain, commonMain) and never sees them.
         val nonWasmJsMain by creating {
@@ -205,6 +205,10 @@ kotlin {
 
         iosMain {
             dependsOn(nonWasmJsMain)
+        }
+
+        mingwX64Main.dependencies {
+            api(libs.ktor.client.winhttp)
         }
 
         jsMain {
