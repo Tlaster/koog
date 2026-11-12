@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:serialization-test>
+// Library unique name: <moe.tlaster.koog:serialization-test>
 abstract class ai.koog.serialization/JSONElementSerializationTestBase { // ai.koog.serialization/JSONElementSerializationTestBase|null[0]
     constructor <init>() // ai.koog.serialization/JSONElementSerializationTestBase.<init>|<init>(){}[0]
 

@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:prompt-tokenizer>
+// Library unique name: <moe.tlaster.koog:prompt-tokenizer>
 abstract interface ai.koog.prompt.tokenizer/PromptTokenizer { // ai.koog.prompt.tokenizer/PromptTokenizer|null[0]
     abstract fun tokenCountFor(ai.koog.prompt.message/Message): kotlin/Int // ai.koog.prompt.tokenizer/PromptTokenizer.tokenCountFor|tokenCountFor(ai.koog.prompt.message.Message){}[0]
     abstract fun tokenCountFor(ai.koog.prompt/Prompt): kotlin/Int // ai.koog.prompt.tokenizer/PromptTokenizer.tokenCountFor|tokenCountFor(ai.koog.prompt.Prompt){}[0]

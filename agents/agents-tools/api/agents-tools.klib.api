@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:agents-tools>
+// Library unique name: <moe.tlaster.koog:agents-tools>
 open annotation class ai.koog.agents.core.tools.annotations/InternalAgentToolsApi : kotlin/Annotation { // ai.koog.agents.core.tools.annotations/InternalAgentToolsApi|null[0]
     constructor <init>() // ai.koog.agents.core.tools.annotations/InternalAgentToolsApi.<init>|<init>(){}[0]
 }

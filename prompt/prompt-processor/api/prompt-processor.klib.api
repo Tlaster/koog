@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:prompt-processor>
+// Library unique name: <moe.tlaster.koog:prompt-processor>
 abstract class ai.koog.prompt.processor/ResponseProcessor { // ai.koog.prompt.processor/ResponseProcessor|null[0]
     constructor <init>() // ai.koog.prompt.processor/ResponseProcessor.<init>|<init>(){}[0]
 

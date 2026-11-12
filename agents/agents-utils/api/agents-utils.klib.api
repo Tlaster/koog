@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:agents-utils>
+// Library unique name: <moe.tlaster.koog:agents-utils>
 open annotation class ai.koog.agents.annotations/JavaAPI : kotlin/Annotation { // ai.koog.agents.annotations/JavaAPI|null[0]
     constructor <init>() // ai.koog.agents.annotations/JavaAPI.<init>|<init>(){}[0]
 }

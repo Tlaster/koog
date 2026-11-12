@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:agents-features-sql>
+// Library unique name: <moe.tlaster.koog:agents-features-sql>
 abstract interface ai.koog.agents.features.sql.providers/SQLPersistenceSchemaMigrator { // ai.koog.agents.features.sql.providers/SQLPersistenceSchemaMigrator|null[0]
     abstract suspend fun migrate() // ai.koog.agents.features.sql.providers/SQLPersistenceSchemaMigrator.migrate|migrate(){}[0]
 }

@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:agents-features-memory>
+// Library unique name: <moe.tlaster.koog:agents-features-memory>
 abstract fun interface ai.koog.agents.chatMemory.feature/MessageFilter { // ai.koog.agents.chatMemory.feature/MessageFilter|null[0]
     abstract fun test(ai.koog.prompt.message/Message): kotlin/Boolean // ai.koog.agents.chatMemory.feature/MessageFilter.test|test(ai.koog.prompt.message.Message){}[0]
 }

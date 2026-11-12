@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:http-client-core>
+// Library unique name: <moe.tlaster.koog:http-client-core>
 abstract interface ai.koog.http.client/KoogHttpClient : kotlin/AutoCloseable { // ai.koog.http.client/KoogHttpClient|null[0]
     abstract val clientName // ai.koog.http.client/KoogHttpClient.clientName|{}clientName[0]
         abstract fun <get-clientName>(): kotlin/String // ai.koog.http.client/KoogHttpClient.clientName.<get-clientName>|<get-clientName>(){}[0]

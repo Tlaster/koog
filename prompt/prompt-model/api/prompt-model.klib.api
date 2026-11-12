@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:prompt-model>
+// Library unique name: <moe.tlaster.koog:prompt-model>
 open annotation class ai.koog.prompt.annotations/InternalPromptAPI : kotlin/Annotation { // ai.koog.prompt.annotations/InternalPromptAPI|null[0]
     constructor <init>() // ai.koog.prompt.annotations/InternalPromptAPI.<init>|<init>(){}[0]
 }

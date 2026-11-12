@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:agents-features-tokenizer>
+// Library unique name: <moe.tlaster.koog:agents-features-tokenizer>
 final class ai.koog.agents.features.tokenizer.feature/MessageTokenizer { // ai.koog.agents.features.tokenizer.feature/MessageTokenizer|null[0]
     constructor <init>(ai.koog.prompt.tokenizer/PromptTokenizer) // ai.koog.agents.features.tokenizer.feature/MessageTokenizer.<init>|<init>(ai.koog.prompt.tokenizer.PromptTokenizer){}[0]
 

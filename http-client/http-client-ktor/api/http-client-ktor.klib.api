@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:http-client-ktor>
+// Library unique name: <moe.tlaster.koog:http-client-ktor>
 final class ai.koog.http.client.ktor/KtorKoogHttpClient : ai.koog.http.client/KoogHttpClient { // ai.koog.http.client.ktor/KtorKoogHttpClient|null[0]
     constructor <init>(kotlin/String, io.github.oshai.kotlinlogging/KLogger, io.ktor.client/HttpClient = ..., kotlin/Function1<io.ktor.client/HttpClientConfig<out io.ktor.client.engine/HttpClientEngineConfig>, kotlin/Unit>) // ai.koog.http.client.ktor/KtorKoogHttpClient.<init>|<init>(kotlin.String;io.github.oshai.kotlinlogging.KLogger;io.ktor.client.HttpClient;kotlin.Function1<io.ktor.client.HttpClientConfig<out|io.ktor.client.engine.HttpClientEngineConfig>,kotlin.Unit>){}[0]
 

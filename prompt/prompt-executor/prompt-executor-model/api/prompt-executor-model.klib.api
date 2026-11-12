@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:prompt-executor-model>
+// Library unique name: <moe.tlaster.koog:prompt-executor-model>
 open annotation class ai.koog.prompt.executor.llms/ExperimentalRoutingApi : kotlin/Annotation { // ai.koog.prompt.executor.llms/ExperimentalRoutingApi|null[0]
     constructor <init>() // ai.koog.prompt.executor.llms/ExperimentalRoutingApi.<init>|<init>(){}[0]
 }

@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:embeddings-base>
+// Library unique name: <moe.tlaster.koog:embeddings-base>
 abstract interface ai.koog.embeddings.base/Embedder { // ai.koog.embeddings.base/Embedder|null[0]
     abstract fun diff(ai.koog.embeddings.base/Vector, ai.koog.embeddings.base/Vector): kotlin/Double // ai.koog.embeddings.base/Embedder.diff|diff(ai.koog.embeddings.base.Vector;ai.koog.embeddings.base.Vector){}[0]
     abstract suspend fun embed(kotlin/String): ai.koog.embeddings.base/Vector // ai.koog.embeddings.base/Embedder.embed|embed(kotlin.String){}[0]

@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:agents-mcp-metadata>
+// Library unique name: <moe.tlaster.koog:agents-mcp-metadata>
 final enum class ai.koog.agents.mcp.metadata/McpTransportType : kotlin/Enum<ai.koog.agents.mcp.metadata/McpTransportType> { // ai.koog.agents.mcp.metadata/McpTransportType|null[0]
     enum entry Stdio // ai.koog.agents.mcp.metadata/McpTransportType.Stdio|null[0]
     enum entry StreamableHttp // ai.koog.agents.mcp.metadata/McpTransportType.StreamableHttp|null[0]

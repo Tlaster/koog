@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:prompt-structure>
+// Library unique name: <moe.tlaster.koog:prompt-structure>
 open annotation class ai.koog.prompt.structure.annotations/InternalStructuredOutputApi : kotlin/Annotation { // ai.koog.prompt.structure.annotations/InternalStructuredOutputApi|null[0]
     constructor <init>() // ai.koog.prompt.structure.annotations/InternalStructuredOutputApi.<init>|<init>(){}[0]
 }

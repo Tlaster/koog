@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:agents-features-snapshot>
+// Library unique name: <moe.tlaster.koog:agents-features-snapshot>
 abstract interface <#A: kotlin/Any?> ai.koog.agents.snapshot.providers/PersistenceStorageProvider { // ai.koog.agents.snapshot.providers/PersistenceStorageProvider|null[0]
     abstract suspend fun getCheckpoints(kotlin/String, #A?): kotlin.collections/List<ai.koog.agents.snapshot.feature/AgentCheckpointData> // ai.koog.agents.snapshot.providers/PersistenceStorageProvider.getCheckpoints|getCheckpoints(kotlin.String;1:0?){}[0]
     abstract suspend fun getLatestCheckpoint(kotlin/String, #A?): ai.koog.agents.snapshot.feature/AgentCheckpointData? // ai.koog.agents.snapshot.providers/PersistenceStorageProvider.getLatestCheckpoint|getLatestCheckpoint(kotlin.String;1:0?){}[0]

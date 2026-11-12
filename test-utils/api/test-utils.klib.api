@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:test-utils>
+// Library unique name: <moe.tlaster.koog:test-utils>
 final class ai.koog.test.utils/CapturingKoogHttpClient : ai.koog.http.client/KoogHttpClient { // ai.koog.test.utils/CapturingKoogHttpClient|null[0]
     constructor <init>(kotlin/String, kotlin/Function1<kotlin.reflect/KClass<*>, kotlin/Any>) // ai.koog.test.utils/CapturingKoogHttpClient.<init>|<init>(kotlin.String;kotlin.Function1<kotlin.reflect.KClass<*>,kotlin.Any>){}[0]
 

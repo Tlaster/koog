@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:prompt-executor-openrouter-client>
+// Library unique name: <moe.tlaster.koog:prompt-executor-openrouter-client>
 final class ai.koog.prompt.executor.clients.openrouter.models/ErrorResponse { // ai.koog.prompt.executor.clients.openrouter.models/ErrorResponse|null[0]
     constructor <init>(kotlin/Int, kotlin/String, kotlin.collections/Map<kotlin/String, kotlin/String>? = ...) // ai.koog.prompt.executor.clients.openrouter.models/ErrorResponse.<init>|<init>(kotlin.Int;kotlin.String;kotlin.collections.Map<kotlin.String,kotlin.String>?){}[0]
 

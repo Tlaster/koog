@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:prompt-executor-cached>
+// Library unique name: <moe.tlaster.koog:prompt-executor-cached>
 final class ai.koog.prompt.executor.cached/CachedPromptExecutor : ai.koog.prompt.executor.model/PromptExecutor { // ai.koog.prompt.executor.cached/CachedPromptExecutor|null[0]
     constructor <init>(ai.koog.prompt.cache.model/PromptCache, ai.koog.prompt.executor.model/PromptExecutor, ai.koog.utils.time/KoogClock = ...) // ai.koog.prompt.executor.cached/CachedPromptExecutor.<init>|<init>(ai.koog.prompt.cache.model.PromptCache;ai.koog.prompt.executor.model.PromptExecutor;ai.koog.utils.time.KoogClock){}[0]
 

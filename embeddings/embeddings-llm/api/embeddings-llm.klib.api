@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:embeddings-llm>
+// Library unique name: <moe.tlaster.koog:embeddings-llm>
 final class ai.koog.embeddings.local/LLMEmbedder : ai.koog.embeddings.base/Embedder { // ai.koog.embeddings.local/LLMEmbedder|null[0]
     constructor <init>(ai.koog.prompt.executor.clients/LLMEmbeddingProvider, ai.koog.prompt.llm/LLModel) // ai.koog.embeddings.local/LLMEmbedder.<init>|<init>(ai.koog.prompt.executor.clients.LLMEmbeddingProvider;ai.koog.prompt.llm.LLModel){}[0]
 

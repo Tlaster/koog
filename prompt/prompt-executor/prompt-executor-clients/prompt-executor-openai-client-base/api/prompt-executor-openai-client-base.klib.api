@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:prompt-executor-openai-client-base>
+// Library unique name: <moe.tlaster.koog:prompt-executor-openai-client-base>
 final enum class ai.koog.prompt.executor.clients.openai.base.models/OpenAIAudioFormat : kotlin/Enum<ai.koog.prompt.executor.clients.openai.base.models/OpenAIAudioFormat> { // ai.koog.prompt.executor.clients.openai.base.models/OpenAIAudioFormat|null[0]
     enum entry FLAC // ai.koog.prompt.executor.clients.openai.base.models/OpenAIAudioFormat.FLAC|null[0]
     enum entry MP3 // ai.koog.prompt.executor.clients.openai.base.models/OpenAIAudioFormat.MP3|null[0]

@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:prompt-executor-anthropic-client>
+// Library unique name: <moe.tlaster.koog:prompt-executor-anthropic-client>
 final enum class ai.koog.prompt.executor.clients.anthropic.models/AnthropicServiceTier : kotlin/Enum<ai.koog.prompt.executor.clients.anthropic.models/AnthropicServiceTier> { // ai.koog.prompt.executor.clients.anthropic.models/AnthropicServiceTier|null[0]
     enum entry AUTO // ai.koog.prompt.executor.clients.anthropic.models/AnthropicServiceTier.AUTO|null[0]
     enum entry STANDARD_ONLY // ai.koog.prompt.executor.clients.anthropic.models/AnthropicServiceTier.STANDARD_ONLY|null[0]

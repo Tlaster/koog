@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:prompt-cache-model>
+// Library unique name: <moe.tlaster.koog:prompt-cache-model>
 abstract interface ai.koog.prompt.cache.model/PromptCache { // ai.koog.prompt.cache.model/PromptCache|null[0]
     abstract suspend fun get(ai.koog.prompt.cache.model/PromptCache.Request): ai.koog.prompt.message/Message.Assistant? // ai.koog.prompt.cache.model/PromptCache.get|get(ai.koog.prompt.cache.model.PromptCache.Request){}[0]
     abstract suspend fun put(ai.koog.prompt.cache.model/PromptCache.Request, ai.koog.prompt.message/Message.Assistant) // ai.koog.prompt.cache.model/PromptCache.put|put(ai.koog.prompt.cache.model.PromptCache.Request;ai.koog.prompt.message.Message.Assistant){}[0]

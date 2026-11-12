@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:prompt-executor-openai-client>
+// Library unique name: <moe.tlaster.koog:prompt-executor-openai-client>
 final enum class ai.koog.prompt.executor.clients.openai.models/OpenAIInclude : kotlin/Enum<ai.koog.prompt.executor.clients.openai.models/OpenAIInclude> { // ai.koog.prompt.executor.clients.openai.models/OpenAIInclude|null[0]
     enum entry CODE_INTERPRETER_CALL_OUTPUTS // ai.koog.prompt.executor.clients.openai.models/OpenAIInclude.CODE_INTERPRETER_CALL_OUTPUTS|null[0]
     enum entry COMPUTER_CALL_OUTPUT_IMAGE_URL // ai.koog.prompt.executor.clients.openai.models/OpenAIInclude.COMPUTER_CALL_OUTPUT_IMAGE_URL|null[0]

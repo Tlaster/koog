@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:agents-test>
+// Library unique name: <moe.tlaster.koog:agents-test>
 abstract interface ai.koog.agents.testing.tools/AIAgentContextMockBuilderBase : ai.koog.agents.core.dsl.builder/BaseBuilder<ai.koog.agents.core.agent.context/AIAgentContext> { // ai.koog.agents.testing.tools/AIAgentContextMockBuilderBase|null[0]
     abstract var agentInput // ai.koog.agents.testing.tools/AIAgentContextMockBuilderBase.agentInput|{}agentInput[0]
         abstract fun <get-agentInput>(): kotlin/Any? // ai.koog.agents.testing.tools/AIAgentContextMockBuilderBase.agentInput.<get-agentInput>|<get-agentInput>(){}[0]

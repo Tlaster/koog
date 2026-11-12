@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:prompt-markdown>
+// Library unique name: <moe.tlaster.koog:prompt-markdown>
 final enum class ai.koog.prompt.markdown/TableAlignment : kotlin/Enum<ai.koog.prompt.markdown/TableAlignment> { // ai.koog.prompt.markdown/TableAlignment|null[0]
     enum entry CENTER // ai.koog.prompt.markdown/TableAlignment.CENTER|null[0]
     enum entry LEFT // ai.koog.prompt.markdown/TableAlignment.LEFT|null[0]

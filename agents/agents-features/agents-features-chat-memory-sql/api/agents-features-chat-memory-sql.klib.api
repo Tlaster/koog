@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:agents-features-chat-memory-sql>
+// Library unique name: <moe.tlaster.koog:agents-features-chat-memory-sql>
 abstract interface ai.koog.agents.features.chatmemory.sql/SQLChatHistorySchemaMigrator { // ai.koog.agents.features.chatmemory.sql/SQLChatHistorySchemaMigrator|null[0]
     abstract suspend fun migrate() // ai.koog.agents.features.chatmemory.sql/SQLChatHistorySchemaMigrator.migrate|migrate(){}[0]
 }

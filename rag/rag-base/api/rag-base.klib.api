@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:rag-base>
+// Library unique name: <moe.tlaster.koog:rag-base>
 final enum class ai.koog.rag.base.storage.capability/StorageCapability : kotlin/Enum<ai.koog.rag.base.storage.capability/StorageCapability> { // ai.koog.rag.base.storage.capability/StorageCapability|null[0]
     enum entry FILTER_EXPRESSION // ai.koog.rag.base.storage.capability/StorageCapability.FILTER_EXPRESSION|null[0]
     enum entry HYBRID_SEARCH // ai.koog.rag.base.storage.capability/StorageCapability.HYBRID_SEARCH|null[0]

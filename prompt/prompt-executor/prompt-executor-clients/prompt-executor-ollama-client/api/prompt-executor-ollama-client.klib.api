@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:prompt-executor-ollama-client>
+// Library unique name: <moe.tlaster.koog:prompt-executor-ollama-client>
 abstract interface ai.koog.prompt.executor.ollama.client/ContextWindowStrategy { // ai.koog.prompt.executor.ollama.client/ContextWindowStrategy|null[0]
     abstract fun computeContextLength(ai.koog.prompt/Prompt, ai.koog.prompt.llm/LLModel): kotlin/Long? // ai.koog.prompt.executor.ollama.client/ContextWindowStrategy.computeContextLength|computeContextLength(ai.koog.prompt.Prompt;ai.koog.prompt.llm.LLModel){}[0]
 

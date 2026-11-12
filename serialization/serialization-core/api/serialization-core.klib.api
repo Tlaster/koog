@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:serialization-core>
+// Library unique name: <moe.tlaster.koog:serialization-core>
 open annotation class ai.koog.serialization.annotations/InternalKoogSerializationApi : kotlin/Annotation { // ai.koog.serialization.annotations/InternalKoogSerializationApi|null[0]
     constructor <init>() // ai.koog.serialization.annotations/InternalKoogSerializationApi.<init>|<init>(){}[0]
 }

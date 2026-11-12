@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:prompt-llm>
+// Library unique name: <moe.tlaster.koog:prompt-llm>
 final class ai.koog.prompt.llm/LLModel { // ai.koog.prompt.llm/LLModel|null[0]
     constructor <init>(ai.koog.prompt.llm/LLMProvider, kotlin/String, kotlin.collections/List<ai.koog.prompt.llm/LLMCapability>? = ..., kotlin/Long? = ..., kotlin/Long? = ...) // ai.koog.prompt.llm/LLModel.<init>|<init>(ai.koog.prompt.llm.LLMProvider;kotlin.String;kotlin.collections.List<ai.koog.prompt.llm.LLMCapability>?;kotlin.Long?;kotlin.Long?){}[0]
 

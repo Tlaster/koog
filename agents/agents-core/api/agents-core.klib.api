@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:agents-core>
+// Library unique name: <moe.tlaster.koog:agents-core>
 open annotation class ai.koog.agents.core.agent.context/DetachedPromptExecutorAPI : kotlin/Annotation { // ai.koog.agents.core.agent.context/DetachedPromptExecutorAPI|null[0]
     constructor <init>() // ai.koog.agents.core.agent.context/DetachedPromptExecutorAPI.<init>|<init>(){}[0]
 }

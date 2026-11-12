@@ -6,7 +6,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:utils>
+// Library unique name: <moe.tlaster.koog:utils>
 open annotation class ai.koog.utils.annotations/InternalKoogUtils : kotlin/Annotation { // ai.koog.utils.annotations/InternalKoogUtils|null[0]
     constructor <init>() // ai.koog.utils.annotations/InternalKoogUtils.<init>|<init>(){}[0]
 }

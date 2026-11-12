@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <ai.koog:agents-features-event-handler>
+// Library unique name: <moe.tlaster.koog:agents-features-event-handler>
 final class ai.koog.agents.features.eventHandler.feature/EventHandler { // ai.koog.agents.features.eventHandler.feature/EventHandler|null[0]
     constructor <init>() // ai.koog.agents.features.eventHandler.feature/EventHandler.<init>|<init>(){}[0]
 
