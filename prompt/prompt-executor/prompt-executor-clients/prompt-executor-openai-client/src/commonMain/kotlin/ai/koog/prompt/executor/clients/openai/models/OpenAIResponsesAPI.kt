@@ -219,13 +219,15 @@ internal sealed interface Item {
      * @property role The role of the output message. Always `assistant`.
      * @property status The status of the message input. One of `in_progress`, `completed`, or `incomplete`.
      * Populated when input items are returned via API.
+     * @property phase The assistant message phase, if provided by the model.
      */
     @Serializable
     class OutputMessage(
         val content: List<OutputContent>,
         val id: String? = null,
         val role: String = "assistant",
-        val status: OpenAIInputStatus? = null
+        val status: OpenAIInputStatus? = null,
+        val phase: String? = null
     ) : Item {
         val type: String = "message"
 
@@ -2316,7 +2318,10 @@ internal object ItemPolymorphicSerializer : JsonContentPolymorphicSerializer<Ite
             is JsonObject -> {
                 when (val type = element["type"]?.jsonPrimitive?.content) {
                     "message" -> {
-                        if (element.containsKey("id")) {
+                        val hasOutputContent = (element["content"] as? JsonArray)?.any { content ->
+                            (content as? JsonObject)?.get("type")?.jsonPrimitive?.content in setOf("output_text", "refusal")
+                        } == true
+                        if (element.containsKey("id") || hasOutputContent) {
                             Item.OutputMessage.serializer()
                         } else {
                             Item.InputMessage.serializer()

@@ -25,12 +25,14 @@ import ai.koog.prompt.executor.clients.openai.base.models.OpenAITool
 import ai.koog.prompt.executor.clients.openai.base.models.OpenAIToolChoice
 import ai.koog.prompt.executor.clients.openai.models.InputContent
 import ai.koog.prompt.executor.clients.openai.models.Item
+import ai.koog.prompt.executor.clients.openai.models.ItemListOrSingleStringSerializer
 import ai.koog.prompt.executor.clients.openai.models.OpenAIChatCompletionRequest
 import ai.koog.prompt.executor.clients.openai.models.OpenAIChatCompletionRequestSerializer
 import ai.koog.prompt.executor.clients.openai.models.OpenAIChatCompletionResponse
 import ai.koog.prompt.executor.clients.openai.models.OpenAIChatCompletionStreamResponse
 import ai.koog.prompt.executor.clients.openai.models.OpenAIEmbeddingRequest
 import ai.koog.prompt.executor.clients.openai.models.OpenAIEmbeddingResponse
+import ai.koog.prompt.executor.clients.openai.models.OpenAIInputStatus
 import ai.koog.prompt.executor.clients.openai.models.OpenAIModelsResponse
 import ai.koog.prompt.executor.clients.openai.models.OpenAIOutputFormat
 import ai.koog.prompt.executor.clients.openai.models.OpenAIResponsesAPIRequest
@@ -65,6 +67,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
@@ -264,6 +267,7 @@ public open class OpenAILLMClient @JvmOverloads constructor(
 
     private companion object {
         private const val OPENAI_CLIENT_NAME = "OpenAILLMClient"
+        private const val RESPONSES_REPLAY_ITEMS = "openai_responses_replay_items"
         private val staticLogger = KotlinLogging.logger { }
     }
 
@@ -868,13 +872,30 @@ public open class OpenAILLMClient @JvmOverloads constructor(
                     }
 
                     is Message.Assistant -> {
-                        message.parts.forEach { part ->
+                        val replayItems = message.metaInfo.metadata?.get(RESPONSES_REPLAY_ITEMS)?.let { value ->
+                            runCatching { json.decodeFromJsonElement(ItemListOrSingleStringSerializer, value) }.getOrNull()
+                        }.orEmpty()
+                        val textItems = replayItems.filterIsInstance<Item.OutputMessage>().filter { it.content.isNotEmpty() }
+                        // Only replay the original text items when the caller has kept their complete text.
+                        val replayText = textItems.takeIf { items ->
+                            items.flatMap { item -> item.content.map { it.toText() } } ==
+                                message.parts.filterIsInstance<MessagePart.Text>().map { it.text }
+                        }?.iterator()
+                        val functionItems = replayItems.filterIsInstance<Item.FunctionToolCall>().associateBy { it.callId }
+                        var remainingTextParts = 0
+                        message.parts.forEach partLoop@{ part ->
                             when (part) {
                                 is MessagePart.ContentPart -> {
                                     when (part) {
                                         is MessagePart.Text -> {
+                                            if (remainingTextParts > 0) {
+                                                remainingTextParts--
+                                                return@partLoop
+                                            }
+                                            val item = replayText?.takeIf { it.hasNext() }?.next()
+                                            remainingTextParts = (item?.content?.size ?: 1) - 1
                                             add(
-                                                Item.OutputMessage(
+                                                item ?: Item.OutputMessage(
                                                     content = listOf(
                                                         OutputContent.Text(text = part.text, annotations = emptyList())
                                                     ),
@@ -890,8 +911,9 @@ public open class OpenAILLMClient @JvmOverloads constructor(
 
                                 is MessagePart.Tool.Call -> {
                                     if (model.supports(LLMCapability.Tools)) {
+                                        val item = functionItems[part.id]?.takeIf { it.name == part.tool && it.arguments == part.args }
                                         add(
-                                            Item.FunctionToolCall(
+                                            item ?: Item.FunctionToolCall(
                                                 callId = part.id ?: Uuid.random().toString(),
                                                 name = part.tool,
                                                 // `args` already holds the JSON-encoded arguments; re-encoding here would
@@ -985,16 +1007,23 @@ public open class OpenAILLMClient @JvmOverloads constructor(
     }
 
     private fun processResponsesAPIResponse(response: OpenAIResponsesAPIResponse): Message.Assistant {
+        if (response.status != OpenAIInputStatus.COMPLETED || response.error != null) {
+            val status = response.status.name.lowercase()
+            val detail = response.error?.message ?: response.incompleteDetails?.reason
+            throw LLMClientException(clientName, "Responses request ended with status $status" + (detail?.let { ": $it" } ?: ""))
+        }
         require(response.output.isNotEmpty()) { "Empty output in response" }
 
+        val replayItems = response.output.filter { it is Item.OutputMessage || it is Item.FunctionToolCall }
         val metaInfo = ResponseMetaInfo.create(
             clock,
             totalTokensCount = response.usage?.totalTokens,
             inputTokensCount = response.usage?.inputTokens,
-            outputTokensCount = response.usage?.outputTokens
+            outputTokensCount = response.usage?.outputTokens,
+            metadata = replayItems.takeIf { it.isNotEmpty() }?.let {
+                JsonObject(mapOf(RESPONSES_REPLAY_ITEMS to json.encodeToJsonElement(ItemListOrSingleStringSerializer, it)))
+            }
         )
-
-        var finishReason: String? = null
 
         val parts = buildList {
             response.output.forEach { output ->
@@ -1011,21 +1040,15 @@ public open class OpenAILLMClient @JvmOverloads constructor(
                     }
 
                     is Item.OutputMessage -> {
-                        finishReason = output.status?.name
                         output.content.forEach { content ->
-                            when (content) {
-                                is OutputContent.Text -> {
-                                    add(MessagePart.Text(content.text))
-                                }
-
-                                is OutputContent.Refusal -> {
-                                    add(MessagePart.Text(content.refusal))
-                                }
-                            }
+                            add(MessagePart.Text(content.toText()))
                         }
                     }
 
                     is Item.FunctionToolCall -> {
+                        if (output.status != null && output.status != OpenAIInputStatus.COMPLETED) {
+                            throw LLMClientException(clientName, "Responses function call has status ${output.status.name.lowercase()}")
+                        }
                         add(
                             MessagePart.Tool.Call(
                                 id = output.callId,
@@ -1045,9 +1068,14 @@ public open class OpenAILLMClient @JvmOverloads constructor(
 
         return Message.Assistant(
             parts = parts,
-            finishReason = finishReason,
+            finishReason = if (parts.any { it is MessagePart.Tool.Call }) "tool_calls" else "stop",
             metaInfo = metaInfo
         )
+    }
+
+    private fun OutputContent.toText(): String = when (this) {
+        is OutputContent.Text -> text
+        is OutputContent.Refusal -> refusal
     }
 
     private fun LLMParams.ToolChoice.toOpenAIResponseToolChoice() = when (this) {
