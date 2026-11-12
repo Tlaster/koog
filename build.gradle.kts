@@ -193,7 +193,12 @@ tasks {
     val publishMavenToCentralPortal by registering {
         group = "publishing"
 
-        dependsOn(packSonatypeCentralBundle)
+        val resumeId = providers.gradleProperty("centralDeploymentId").orNull
+            ?.takeIf { it.isNotBlank() }
+            ?.let(UUID::fromString)
+        if (resumeId == null) {
+            dependsOn(packSonatypeCentralBundle)
+        }
 
         doLast {
             val uriBase = "https://central.sonatype.com/api/v1/publisher"
@@ -202,25 +207,9 @@ tasks {
             val automatic = branch == "main" || isCustomReleaseBranch(branch)
             val publishingType = if (automatic) "AUTOMATIC" else "USER_MANAGED"
 
-            val deploymentName = "${project.name}-$version"
-            val uri = "$uriBase/upload?name=$deploymentName&publishingType=$publishingType"
-
             val userName = System.getenv("CE_MVN_CLIENT_USERNAME") ?: error("Missing CE_MVN_CLIENT_USERNAME")
             val token = System.getenv("CE_MVN_CLIENT_PASSWORD") ?: error("Missing CE_MVN_CLIENT_PASSWORD")
             val base64Auth = Base64.getEncoder().encode("$userName:$token".toByteArray()).toString(Charsets.UTF_8)
-            val bundleFile = packSonatypeCentralBundle.get().archiveFile.get().asFile
-
-            val groupPath = project.group.toString().replace('.', '/')
-            val variants = listOf("android", "iosarm64", "iossimulatorarm64", "iosx64", "js", "jvm", "macosarm64", "mingwx64", "wasm-js")
-            ZipFile(bundleFile).use { bundle ->
-                val missing = variants.filter { variant ->
-                    val artifact = "koog-agents-$variant"
-                    bundle.getEntry("$groupPath/$artifact/$version/$artifact-$version.pom") == null
-                }
-                check(missing.isEmpty()) { "Maven bundle is missing koog-agents variants: ${missing.joinToString()}" }
-            }
-
-            println("Sending request to $uri...")
 
             val client = OkHttpClient.Builder()
                 .connectTimeout(40, TimeUnit.SECONDS)
@@ -230,27 +219,43 @@ tasks {
                 .retryOnConnectionFailure(true)
                 .build()
 
-            val request = Request.Builder()
-                .url(uri)
-                .header("Authorization", "Bearer $base64Auth")
-                .post(
-                    MultipartBody.Builder()
-                        .setType(MultipartBody.FORM)
-                        .addFormDataPart(
-                            "bundle",
-                            bundleFile.name,
-                            bundleFile.asRequestBody("application/octet-stream".toMediaType())
-                        )
-                        .build()
-                )
-                .build()
-            val deploymentId = client.newCall(request).execute().use { response ->
-                val body = response.body.string().trim()
-                check(response.code == 201) { "Central upload failed with HTTP ${response.code}: $body" }
-                UUID.fromString(body)
+            val deploymentId = resumeId ?: run {
+                val bundleFile = packSonatypeCentralBundle.get().archiveFile.get().asFile
+                val groupPath = project.group.toString().replace('.', '/')
+                val variants = listOf("android", "iosarm64", "iossimulatorarm64", "iosx64", "js", "jvm", "macosarm64", "mingwx64", "wasm-js")
+                ZipFile(bundleFile).use { bundle ->
+                    val missing = variants.filter { variant ->
+                        val artifact = "koog-agents-$variant"
+                        bundle.getEntry("$groupPath/$artifact/$version/$artifact-$version.pom") == null
+                    }
+                    check(missing.isEmpty()) { "Maven bundle is missing koog-agents variants: ${missing.joinToString()}" }
+                }
+
+                val deploymentName = "${project.name}-$version"
+                val uri = "$uriBase/upload?name=$deploymentName&publishingType=$publishingType"
+                println("Sending request to $uri...")
+                val request = Request.Builder()
+                    .url(uri)
+                    .header("Authorization", "Bearer $base64Auth")
+                    .post(
+                        MultipartBody.Builder()
+                            .setType(MultipartBody.FORM)
+                            .addFormDataPart(
+                                "bundle",
+                                bundleFile.name,
+                                bundleFile.asRequestBody("application/octet-stream".toMediaType())
+                            )
+                            .build()
+                    )
+                    .build()
+                client.newCall(request).execute().use { response ->
+                    val body = response.body.string().trim()
+                    check(response.code == 201) { "Central upload failed with HTTP ${response.code}: $body" }
+                    UUID.fromString(body)
+                }
             }
             println("Central deployment ID: $deploymentId")
-            if (!automatic) return@doLast
+            if (!automatic && resumeId == null) return@doLast
 
             val statusRequest = Request.Builder()
                 .url("$uriBase/status?id=$deploymentId")
@@ -259,7 +264,7 @@ tasks {
                 .build()
             val statusClient = client.newBuilder().callTimeout(30, TimeUnit.SECONDS).build()
 
-            repeat(120) {
+            repeat(150) {
                 statusClient.newCall(statusRequest).execute().use { response ->
                     val body = response.body.string()
                     if (response.code == 429 || response.code in 500..599) {
@@ -271,15 +276,15 @@ tasks {
                         println("Central deployment $deploymentId: $state")
                         when (state) {
                             "PUBLISHED" -> return@doLast
-                            "FAILED" -> error("Central validation failed: ${status["errors"]}")
+                            "FAILED" -> error("Central deployment failed: ${status["errors"]}")
                             "PENDING", "VALIDATING", "VALIDATED", "PUBLISHING" -> Unit
                             else -> error("Unexpected Central deployment state: $state")
                         }
                     }
                 }
-                Thread.sleep(15_000)
+                Thread.sleep(30_000)
             }
-            error("Timed out waiting for Central deployment $deploymentId.")
+            error("Timed out waiting for Central deployment $deploymentId. Set centralDeploymentId to resume monitoring.")
         }
     }
 }
