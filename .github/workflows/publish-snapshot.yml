@@ -15,6 +15,10 @@ on:
         description: "Central Portal snapshot repository URL."
         required: true
         default: "https://central.sonatype.com/repository/maven-snapshots/"
+      openai_client_only:
+        description: "Publish only the OpenAI client module and all its platform variants."
+        type: boolean
+        default: false
 
 concurrency:
   group: publish-snapshot-${{ github.ref }}
@@ -89,10 +93,19 @@ jobs:
           echo "Publishing $GROUP_ID:$BASE_VERSION-SNAPSHOT to $SNAPSHOT_REPOSITORY_URL"
 
       - name: Publish snapshots
+        env:
+          OPENAI_CLIENT_ONLY: ${{ inputs.openai_client_only }}
         run: |
+          publish_args=(publishAllSnapshotsToCentralPortal)
+          if [[ "$OPENAI_CLIENT_ONLY" == "true" ]]; then
+            publish_args=(
+              :prompt:prompt-executor:prompt-executor-clients:prompt-executor-openai-client:publishAllPublicationsToCentralPortalSnapshotsRepository
+              --max-workers=1
+            )
+          fi
           ./gradlew \
             --init-script .github/gradle/publish-snapshot.init.gradle.kts \
-            publishAllSnapshotsToCentralPortal \
+            "${publish_args[@]}" \
             --no-daemon \
             --stacktrace
 
