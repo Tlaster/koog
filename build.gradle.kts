@@ -17,6 +17,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Base64
 import java.util.UUID
+import java.util.zip.ZipFile
 
 version = run {
     // our version follows the semver specification
@@ -208,6 +209,16 @@ tasks {
             val token = System.getenv("CE_MVN_CLIENT_PASSWORD") ?: error("Missing CE_MVN_CLIENT_PASSWORD")
             val base64Auth = Base64.getEncoder().encode("$userName:$token".toByteArray()).toString(Charsets.UTF_8)
             val bundleFile = packSonatypeCentralBundle.get().archiveFile.get().asFile
+
+            val groupPath = project.group.toString().replace('.', '/')
+            val variants = listOf("android", "iosarm64", "iossimulatorarm64", "iosx64", "js", "jvm", "macosarm64", "mingwx64", "wasm-js")
+            ZipFile(bundleFile).use { bundle ->
+                val missing = variants.filter { variant ->
+                    val artifact = "koog-agents-$variant"
+                    bundle.getEntry("$groupPath/$artifact/$version/$artifact-$version.pom") == null
+                }
+                check(missing.isEmpty()) { "Maven bundle is missing koog-agents variants: ${missing.joinToString()}" }
+            }
 
             println("Sending request to $uri...")
 

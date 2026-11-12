@@ -36,7 +36,7 @@ env:
 jobs:
   publish:
     name: Publish ${{ inputs.group_id }}:${{ inputs.base_version }} (${{ inputs.release && 'release' || 'snapshot' }})
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     permissions:
       contents: read
