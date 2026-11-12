@@ -1,10 +1,13 @@
 import ai.koog.gradle.fixups.DisableDistTasks.disableDistTasks
 import ai.koog.gradle.plugins.CheckSplitPackagesExtension
 import ai.koog.gradle.plugins.CheckSplitPackagesPlugin
+import groovy.json.JsonSlurper
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrLink
 import org.jetbrains.kotlin.gradle.tasks.BaseKotlinCompile
@@ -13,6 +16,7 @@ import java.time.Clock
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Base64
+import java.util.UUID
 
 version = run {
     // our version follows the semver specification
@@ -174,10 +178,12 @@ tasks {
         group = "publishing"
 
         subprojects {
-            dependsOn(tasks.withType<PublishToMavenRepository>())
+            dependsOn(tasks.withType<PublishToMavenRepository>().matching { it.name.endsWith("ToArtifactsRepository") })
         }
 
-        from(rootProject.layout.buildDirectory.dir("artifacts/maven"))
+        from(rootProject.layout.buildDirectory.dir("artifacts/maven")) {
+            exclude("**/maven-metadata.xml*")
+        }
         archiveFileName.set("bundle.zip")
         destinationDirectory.set(layout.buildDirectory)
     }
@@ -189,23 +195,17 @@ tasks {
         dependsOn(packSonatypeCentralBundle)
 
         doLast {
-            val uriBase = "https://central.sonatype.com/api/v1/publisher/upload"
+            val uriBase = "https://central.sonatype.com/api/v1/publisher"
 
-            val mainBranch = System.getenv("BRANCH_KOOG_IS_RELEASING_FROM") == "main"
-            val customReleaseBranch = isCustomReleaseBranch(System.getenv("BRANCH_KOOG_IS_RELEASING_FROM"))
-            val publishingType = if (mainBranch || customReleaseBranch) {
-                println("Publishing from the main branch, so publishing as AUTOMATIC.")
-                "AUTOMATIC"
-            } else {
-                println("Publishing from the non-main branch, so publishing as USER_MANAGED.")
-                "USER_MANAGED" // do not publish releases from non-main branches without approval
-            }
+            val branch = System.getenv("BRANCH_KOOG_IS_RELEASING_FROM").orEmpty()
+            val automatic = branch == "main" || isCustomReleaseBranch(branch)
+            val publishingType = if (automatic) "AUTOMATIC" else "USER_MANAGED"
 
             val deploymentName = "${project.name}-$version"
-            val uri = "$uriBase?name=$deploymentName&publishingType=$publishingType"
+            val uri = "$uriBase/upload?name=$deploymentName&publishingType=$publishingType"
 
-            val userName = System.getenv("CE_MVN_CLIENT_USERNAME") as String
-            val token = System.getenv("CE_MVN_CLIENT_PASSWORD") as String
+            val userName = System.getenv("CE_MVN_CLIENT_USERNAME") ?: error("Missing CE_MVN_CLIENT_USERNAME")
+            val token = System.getenv("CE_MVN_CLIENT_PASSWORD") ?: error("Missing CE_MVN_CLIENT_PASSWORD")
             val base64Auth = Base64.getEncoder().encode("$userName:$token".toByteArray()).toString(Charsets.UTF_8)
             val bundleFile = packSonatypeCentralBundle.get().archiveFile.get().asFile
 
@@ -225,18 +225,50 @@ tasks {
                 .post(
                     MultipartBody.Builder()
                         .setType(MultipartBody.FORM)
-                        .addFormDataPart("bundle", bundleFile.name, bundleFile.asRequestBody())
+                        .addFormDataPart(
+                            "bundle",
+                            bundleFile.name,
+                            bundleFile.asRequestBody("application/octet-stream".toMediaType())
+                        )
                         .build()
                 )
                 .build()
-            client.newCall(request).execute().use { response ->
-                val statusCode = response.code
-                println("Upload status code: $statusCode")
-                println("Upload result: ${response.body.string()}")
-                if (statusCode != 201) {
-                    error("Upload error to Central repository. Status code $statusCode.")
-                }
+            val deploymentId = client.newCall(request).execute().use { response ->
+                val body = response.body.string().trim()
+                check(response.code == 201) { "Central upload failed with HTTP ${response.code}: $body" }
+                UUID.fromString(body)
             }
+            println("Central deployment ID: $deploymentId")
+            if (!automatic) return@doLast
+
+            val statusRequest = Request.Builder()
+                .url("$uriBase/status?id=$deploymentId")
+                .header("Authorization", "Bearer $base64Auth")
+                .post("".toRequestBody())
+                .build()
+            val statusClient = client.newBuilder().callTimeout(30, TimeUnit.SECONDS).build()
+
+            repeat(120) {
+                statusClient.newCall(statusRequest).execute().use { response ->
+                    val body = response.body.string()
+                    if (response.code == 429 || response.code in 500..599) {
+                        println("Central deployment $deploymentId status returned HTTP ${response.code}; retrying.")
+                    } else {
+                        check(response.isSuccessful) { "Central status check failed with HTTP ${response.code}: $body" }
+                        val status = JsonSlurper().parseText(body) as Map<*, *>
+                        val state = status["deploymentState"]
+                        println("Central deployment $deploymentId: $state")
+                        when (state) {
+                            "PUBLISHED" -> return@doLast
+                            "FAILED" -> error("Central validation failed: ${status["errors"]}")
+                            "PENDING", "VALIDATING", "VALIDATED", "PUBLISHING" -> Unit
+                            else -> error("Unexpected Central deployment state: $state")
+                        }
+                    }
+                }
+                Thread.sleep(15_000)
+            }
+            error("Timed out waiting for Central deployment $deploymentId.")
         }
     }
 }

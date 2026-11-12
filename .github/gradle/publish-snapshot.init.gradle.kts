@@ -1,10 +1,7 @@
 import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.PasswordCredentials
 import org.gradle.api.publish.PublishingExtension
-import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
-import org.gradle.plugins.signing.Sign
-import org.gradle.plugins.signing.SigningExtension
 
 val snapshotRepositoryName = "CentralPortalSnapshots"
 val defaultSnapshotRepositoryUrl = "https://central.sonatype.com/repository/maven-snapshots/"
@@ -21,20 +18,6 @@ fun Project.requireSnapshotProperty(name: String, envName: String): String {
 
 fun Project.isSnapshotPublishableProject(): Boolean {
     return buildFile.exists() && "publishToMaven()" in buildFile.readText()
-}
-
-fun Project.configureSnapshotSigningIfPossible() {
-    val signing = extensions.findByType(SigningExtension::class.java) ?: return
-    val publishing = extensions.findByType(PublishingExtension::class.java) ?: return
-    val signingKey = snapshotProperty("signingKey", "SIGNING_KEY")
-        ?.replace("\\n", "\n")
-        ?: return
-    val signingPassword = requireSnapshotProperty("signingPassword", "SIGNING_PASSWORD")
-
-    signing.useInMemoryPgpKeys(signingKey, signingPassword)
-    publishing.publications.withType(MavenPublication::class.java).configureEach {
-        signing.sign(this)
-    }
 }
 
 allprojects {
@@ -60,21 +43,12 @@ allprojects {
             }
         }
 
-        configureSnapshotSigningIfPossible()
-
         tasks.withType(PublishToMavenRepository::class.java).configureEach {
             onlyIf("Central Portal snapshot repository only accepts -SNAPSHOT versions") {
                 !name.endsWith("To${snapshotRepositoryName}Repository") ||
                     project.version.toString().endsWith("-SNAPSHOT")
             }
-            if (name.endsWith("To${snapshotRepositoryName}Repository")) {
-                dependsOn(tasks.withType(Sign::class.java))
-            }
         }
-    }
-
-    plugins.withId("signing") {
-        configureSnapshotSigningIfPossible()
     }
 }
 
@@ -84,8 +58,8 @@ gradle.projectsEvaluated {
         description = "Publishes all Maven publications to the Central Portal snapshot repository."
 
         doFirst {
-            check(rootProject.group.toString() == "moe.tlaster") {
-                "Snapshot publishing is expected to use group 'moe.tlaster', actual '${rootProject.group}'."
+            check(rootProject.group.toString() == "moe.tlaster.koog") {
+                "Snapshot publishing is expected to use group 'moe.tlaster.koog', actual '${rootProject.group}'."
             }
             check(rootProject.version.toString().endsWith("-SNAPSHOT")) {
                 "Snapshot publishing requires a -SNAPSHOT version, actual '${rootProject.version}'."

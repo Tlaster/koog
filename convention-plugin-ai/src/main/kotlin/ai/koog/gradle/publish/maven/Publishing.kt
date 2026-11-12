@@ -5,6 +5,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.plugins.signing.SigningExtension
 import java.net.URL
 
 object Publishing {
@@ -23,7 +24,7 @@ object Publishing {
 
                         pom.name.set(this@publishToMaven.name)
                         pom.description.set("Koog is a framework for quickly creating AI agents in Kotlin with minimal effort.")
-                        pom.url.set("https://github.com/JetBrains/koog")
+                        pom.url.set("https://github.com/Tlaster/koog")
 
                         pom.licenses(
                             Action {
@@ -60,13 +61,31 @@ object Publishing {
                         pom.scm(
                             Action {
                                 val scm = this
-                                scm.url.set("https://github.com/JetBrains/koog.git")
+                                scm.url.set("https://github.com/Tlaster/koog")
+                                scm.connection.set("scm:git:https://github.com/Tlaster/koog.git")
+                                scm.developerConnection.set("scm:git:ssh://git@github.com/Tlaster/koog.git")
                             }
                         )
                     }
                 )
             }
+
+            val signingKey = signingProperty("signingKey", "SIGNING_KEY")
+            if (signingKey != null) {
+                val signingPassword = signingProperty("signingPassword", "SIGNING_PASSWORD")
+                    ?: error("Missing SIGNING_PASSWORD or Gradle property 'signingPassword'.")
+                val signing = extensions.getByType(SigningExtension::class.java)
+                signing.useInMemoryPgpKeys(signingKey.replace("\\n", "\n"), signingPassword)
+                it.publications.withType(MavenPublication::class.java).configureEach {
+                    signing.sign(this)
+                }
+            }
         }
+    }
+
+    private fun Project.signingProperty(name: String, envName: String): String? {
+        return (findProperty(name) as? String)?.takeIf { it.isNotBlank() }
+            ?: System.getenv(envName)?.takeIf { it.isNotBlank() }
     }
 
     private fun Project.publishTo(

@@ -1,7 +1,7 @@
 # Koog
 
 [![Kotlin Stable](https://kotl.in/badges/stable.svg)](https://kotlinlang.org/docs/components-stability.html)
-[![Maven Central](https://img.shields.io/maven-central/v/ai.koog/koog-agents)](https://search.maven.org/artifact/ai.koog/koog-agents)
+[![Maven Central](https://img.shields.io/maven-central/v/moe.tlaster.koog/koog-agents)](https://central.sonatype.com/artifact/moe.tlaster.koog/koog-agents)
 [![JetBrains incubator project](https://jb.gg/badges/incubator.svg)](https://github.com/JetBrains#jetbrains-on-github)
 [![Kotlin](https://img.shields.io/badge/kotlin-2.2-blue.svg?logo=kotlin)](http://kotlinlang.org)
 [![CI status](https://img.shields.io/github/checks-status/JetBrains/koog/main)](https://github.com/JetBrains/koog/actions?query=branch%3Amain)
@@ -99,8 +99,8 @@ Run `./gradlew mingwX64Test` on Windows to execute the native tests.
 
     ```
     dependencies {
-        implementation("ai.koog:koog-agents:1.3.0")
-        implementation("ai.koog:koog-agents-additions:1.3.0-beta")
+        implementation("moe.tlaster.koog:koog-agents:1.3.0")
+        implementation("moe.tlaster.koog:koog-agents-additions:1.3.0-beta")
     }
     ```
 2. Make sure that you have `mavenCentral()` in the list of repositories.
@@ -110,8 +110,8 @@ Run `./gradlew mingwX64Test` on Windows to execute the native tests.
 
     ```
     dependencies {
-        implementation 'ai.koog:koog-agents:1.3.0'
-        implementation 'ai.koog:koog-agents-additions:1.3.0-beta'
+        implementation 'moe.tlaster.koog:koog-agents:1.3.0'
+        implementation 'moe.tlaster.koog:koog-agents-additions:1.3.0-beta'
     }
     ```
 2. Make sure that you have `mavenCentral()` in the list of repositories.
@@ -121,12 +121,12 @@ Run `./gradlew mingwX64Test` on Windows to execute the native tests.
 
     ```
     <dependency>
-        <groupId>ai.koog</groupId>
+        <groupId>moe.tlaster.koog</groupId>
         <artifactId>koog-agents-jvm</artifactId>
         <version>1.3.0</version>
     </dependency>
     <dependency>
-        <groupId>ai.koog</groupId>
+        <groupId>moe.tlaster.koog</groupId>
         <artifactId>koog-agents-additions-jvm</artifactId>
         <version>1.3.0-beta</version>
     </dependency>

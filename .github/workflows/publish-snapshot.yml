@@ -1,16 +1,16 @@
-name: Publish Snapshot
+name: Publish Koog
 
 on:
   workflow_dispatch:
     inputs:
       base_version:
-        description: "Base version. Gradle appends -SNAPSHOT automatically."
+        description: "Base version. Releases use the version in gradle.properties."
         required: true
         default: "1.3.0"
       group_id:
-        description: "Maven groupId for the forked snapshot artifacts."
+        description: "Maven groupId for the fork."
         required: true
-        default: "moe.tlaster"
+        default: "moe.tlaster.koog"
       repository_url:
         description: "Central Portal snapshot repository URL."
         required: true
@@ -19,9 +19,13 @@ on:
         description: "Publish only the OpenAI client module and all its platform variants."
         type: boolean
         default: false
+      release:
+        description: "Publish a stable version of all modules to Maven Central."
+        type: boolean
+        default: false
 
 concurrency:
-  group: publish-snapshot-${{ github.ref }}
+  group: publish-koog-${{ github.ref }}
   cancel-in-progress: false
 
 env:
@@ -31,7 +35,7 @@ env:
 
 jobs:
   publish:
-    name: Publish ${{ inputs.group_id }}:${{ inputs.base_version }}-SNAPSHOT
+    name: Publish ${{ inputs.group_id }}:${{ inputs.base_version }} (${{ inputs.release && 'release' || 'snapshot' }})
     runs-on: macos-latest
     timeout-minutes: 120
     permissions:
@@ -62,10 +66,12 @@ jobs:
         with:
           cache-read-only: false
 
-      - name: Validate snapshot inputs
+      - name: Validate publishing inputs
         env:
           BASE_VERSION: ${{ inputs.base_version }}
           GROUP_ID: ${{ inputs.group_id }}
+          PUBLISH_RELEASE: ${{ inputs.release }}
+          OPENAI_CLIENT_ONLY: ${{ inputs.openai_client_only }}
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
@@ -73,12 +79,22 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [[ "$GROUP_ID" != "moe.tlaster" ]]; then
-            echo "This workflow is intended to publish snapshots under groupId moe.tlaster." >&2
+          if [[ "$GROUP_ID" != "moe.tlaster.koog" ]]; then
+            echo "This workflow publishes under groupId moe.tlaster.koog." >&2
             exit 1
           fi
 
-          if [[ "$BASE_VERSION" == *-SNAPSHOT ]]; then
+          if [[ "$PUBLISH_RELEASE" == "true" ]]; then
+            if [[ ! "$BASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] ||
+               [[ "$BASE_VERSION" != "$(sed -n 's/^version=//p' gradle.properties)" ]]; then
+              echo "A release requires the stable version from gradle.properties." >&2
+              exit 1
+            fi
+            if [[ "$OPENAI_CLIENT_ONLY" == "true" ]]; then
+              echo "A release publishes all modules." >&2
+              exit 1
+            fi
+          elif [[ "$BASE_VERSION" == *-SNAPSHOT ]]; then
             echo "base_version must not include -SNAPSHOT because the Gradle build appends it." >&2
             exit 1
           fi
@@ -90,9 +106,8 @@ jobs:
             fi
           done
 
-          echo "Publishing $GROUP_ID:$BASE_VERSION-SNAPSHOT to $SNAPSHOT_REPOSITORY_URL"
-
       - name: Publish snapshots
+        if: ${{ !inputs.release }}
         env:
           OPENAI_CLIENT_ONLY: ${{ inputs.openai_client_only }}
         run: |
@@ -108,6 +123,14 @@ jobs:
             "${publish_args[@]}" \
             --no-daemon \
             --stacktrace
+
+      - name: Publish signed release to Maven Central
+        if: ${{ inputs.release }}
+        env:
+          BRANCH_KOOG_IS_RELEASING_FROM: ${{ inputs.base_version }}
+          CE_MVN_CLIENT_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          CE_MVN_CLIENT_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+        run: ./gradlew --no-daemon --stacktrace :publishMavenToCentralPortal
 
       - name: Upload reports
         if: always()
